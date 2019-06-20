@@ -4,6 +4,7 @@ import           Data.Pool                  (createPool)
 import qualified Database.PostgreSQL.Simple as PG
 import           Network.Wai                (Application, Response)
 import           Web.Fn
+import           Data.Text                  (Text)
 
 import           Context
 import           Blogs.Controller
@@ -23,8 +24,32 @@ site :: Ctxt -> IO Response
 site ctxt =
   route ctxt [ end ==> indexHandler
              , path "blogs" ==> blogsRoutes
+             , path "hello" // segment ==> helloNameH
+             , path "hello" // param "name" ==> helloNameH
+             , path "hello" // segment ==> rudeHelloH
+             , path "add" // segment // segment ==> addNumbersH
+             , path "add" // segment // segment ==> addWordsH
              , path "static" // anything ==> staticServe "static" ]
     `fallthrough` notFoundText "Page not found."
+
+helloNameH :: Ctxt -> Text ->  IO (Maybe Response)
+helloNameH ctxt name =
+  if name == "Libby"
+  then return Nothing
+  else okText ("Hello, " <> name <> "!")
+
+rudeHelloH :: Ctxt -> Text -> IO (Maybe Response)
+rudeHelloH ctxt name = okText "ugh, you again"
+
+addNumbersH :: Ctxt -> Int -> Int -> IO (Maybe Response)
+addNumbersH ctxt number1 number2 =
+  let sum = number1 + number2 in
+  okText (tshow number1 <> " plus " <>
+          tshow number2 <> " is " <> tshow sum <> ".")
+
+addWordsH :: Ctxt -> Text -> Text -> IO (Maybe Response)
+addWordsH ctxt word1 word2 =
+  okText (word1 <> " plus " <> word2 <> " is " <> word1 <> word2 <> ".")
 
 indexHandler :: Ctxt -> IO (Maybe Response)
 indexHandler ctxt = okText "hello world"
