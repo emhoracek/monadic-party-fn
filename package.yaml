@@ -1,0 +1,54 @@
+name:                monadic-party
+version:             0.1.0.0
+github:              "emhoracek/monadic-party"
+license:             BSD3
+author:              "Libby Horacek"
+maintainer:          "libby@daydrea.me"
+copyright:           "2019 Libby Horacek"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+synopsis:            Monadic Party workshop app
+category:            Web
+description:         Please see the README on GitHub at <https://github.com/githubuser/monadic-party#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- fn
+- resource-pool
+- postgresql-simple
+- text
+- http-types
+- wai
+- warp
+- time
+- bytestring
+- lucid
+- digestive-functors
+- aeson
+
+library:
+  source-dirs: src
+  default-extensions:
+    - OverloadedStrings
+
+executables:
+  monadic-party-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - monadic-party
+  migrate:
+    main:               Rivet.hs
+    source-dirs:        migrations
+    dependencies:
+    - rivet-core
+    - rivet-adaptor-postgresql
+    default-extensions:
+      - OverloadedStrings
