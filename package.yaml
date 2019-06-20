@@ -45,7 +45,7 @@ executables:
     dependencies:
     - monadic-party
   migrate:
-    main:               Rivet.hs
+    main:               rivet.hs
     source-dirs:        migrations
     dependencies:
     - rivet-core
