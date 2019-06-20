@@ -49,6 +49,5 @@ executables:
     source-dirs:        migrations
     dependencies:
     - rivet-core
-    - rivet-adaptor-postgresql
     default-extensions:
       - OverloadedStrings
