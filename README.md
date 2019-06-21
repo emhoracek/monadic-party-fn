@@ -16,7 +16,7 @@ In the repo directory, run `stack setup && stack build`.
 
 ### Create the databases
 
-First create a user: `createuser monadic_party_user -W` and enter a password.
+First create a user: `createuser monadic_party_user -W` and enter the password "111".
 
 Next, create the database: `createdb -O monadic_party_user monadic_party_db`
 
