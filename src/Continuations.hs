@@ -8,14 +8,14 @@ examples = do
   printf (c"I have " % d % c" " % s) 2 "cats" -- should be "I have 2 cats"
 
 printf :: ((String -> IO ()) -> a) -> a
-printf format = format putStrLn
+printf format = undefined
 
 c str k = k str
 
 d :: (Num n, Show n) => (String -> a) -> n -> a
-d k i = k (show i)
+d k i = undefined
 
-s = id
+s = undefined
 
-(%) f1 f2 k = f1 (f2 . concatK)
+(%) f1 f2 k = undefined
   where concatK s1 s2 = k (s1 ++ s2)

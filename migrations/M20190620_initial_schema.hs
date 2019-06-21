@@ -13,4 +13,3 @@ up = "CREATE TABLE blogs ( \
       \  title text not null, \
       \  body text not null \
       \);"
-
