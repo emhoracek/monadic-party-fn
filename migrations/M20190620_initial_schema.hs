@@ -5,7 +5,7 @@ import qualified Data.Text         as T
 import           Database.Rivet.V0
 
 migrate :: Migration IO ()
-migrate = sql up "DROP TABLE blogs CASCADE;"
+migrate = sql up "DROP TABLE blogs CASCADE;" --why DROP?
 
 up :: Text
 up = "CREATE TABLE blogs ( \

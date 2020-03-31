@@ -5,7 +5,8 @@ import           Database.Rivet.Adaptor.PostgreSQL
 import qualified Database.Rivet.Main               as Rivet
 import           System.Environment
 
-import M20190620_initial_schema (migrate)
+import M20190620_initial_schema
+
 
 main :: IO ()
 main = do args <- getArgs

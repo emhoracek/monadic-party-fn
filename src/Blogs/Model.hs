@@ -25,7 +25,7 @@ getBlogs ctxt =
   withResource (db ctxt) (\conn ->
     PG.query_
      conn
-     "SELECT title, body FROM blogs"
+     "SELECT title, , body FROM blogs"
        :: IO [ Blog ])
 
 createBlog :: Ctxt -> Blog -> IO Bool
@@ -33,5 +33,5 @@ createBlog ctxt blog = (==) 1 <$>
   withResource (db ctxt) (\conn ->
     PG.execute
      conn
-     "INSERT INTO blogs (title, body) VALUES (?, ?)"
+     "INSERT INTO blogs (title, , body) VALUES (?, ?)"
      blog)

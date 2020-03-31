@@ -13,3 +13,18 @@ blogsView :: [Blog] -> Html ()
 blogsView blogs = do
   h1_ "Blogs"
   mconcat (map blogView blogs)
+
+blogsForm :: Html ()
+blogsForm = do
+  h1_ "Add a blog post"
+  form_ [method_ "POST", action_ "/blogs/create"] $ do
+    label_ $ do
+      "Title"
+      input_ [name_ "title"]
+    label_ $ do
+      "Description"
+      input_ [name_ "description"]
+    label_ $ do
+      "Body"
+      textarea_ [name_ "body"] ""
+    input_ [type_ "submit"]
