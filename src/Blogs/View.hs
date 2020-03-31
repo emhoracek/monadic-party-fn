@@ -5,7 +5,7 @@ import Lucid
 import Blogs.Model
 
 blogView :: Blog -> Html ()
-blogView (Blog title body) = do
+blogView (Blog title body _) = do
   h2_ (toHtml title)
   p_ (toHtml body)
 
@@ -21,9 +21,6 @@ blogsForm = do
     label_ $ do
       "Title"
       input_ [name_ "title"]
-    label_ $ do
-      "Description"
-      input_ [name_ "description"]
     label_ $ do
       "Body"
       textarea_ [name_ "body"] ""

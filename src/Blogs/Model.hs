@@ -7,31 +7,35 @@ import qualified Database.PostgreSQL.Simple         as PG
 import           Database.PostgreSQL.Simple.FromRow
 import           Database.PostgreSQL.Simple.ToField
 import           Database.PostgreSQL.Simple.ToRow
-
+import           Data.Time.Clock (UTCTime)
 import           Context
 
 data Blog = Blog { title :: Text
-                 , body  :: Text } deriving (Eq, Show)
-
-instance ToRow Blog where
-  toRow (Blog title body) =
-    [toField title, toField body ]
+                 , body  :: Text
+                 , createdAt :: UTCTime } deriving (Eq, Show)
 
 instance FromRow Blog where
-  fromRow = Blog <$> field <*> field
+  fromRow = Blog <$> field <*> field <*> field
+
+data NewBlog = NewBlog { newTitle :: Text  -- second blog type that is put into the db (no created_at field in form)
+                       , newBody  :: Text } deriving (Eq, Show)
+
+instance ToRow NewBlog where
+  toRow (NewBlog title body) =
+    [toField title, toField body]
 
 getBlogs :: Ctxt -> IO [Blog]
 getBlogs ctxt =
   withResource (db ctxt) (\conn ->
     PG.query_
      conn
-     "SELECT title, , body FROM blogs"
+     "SELECT title, body, created_at FROM blogs"
        :: IO [ Blog ])
 
-createBlog :: Ctxt -> Blog -> IO Bool
+createBlog :: Ctxt -> NewBlog -> IO Bool
 createBlog ctxt blog = (==) 1 <$>
   withResource (db ctxt) (\conn ->
     PG.execute
      conn
-     "INSERT INTO blogs (title, , body) VALUES (?, ?)"
+     "INSERT INTO blogs (title, body) VALUES (?, ?)"
      blog)

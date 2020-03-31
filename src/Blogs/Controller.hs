@@ -30,7 +30,7 @@ blogsFormHandler ctxt = okLucid blogsForm
 blogsCreateHandler :: Ctxt -> Text -> Text -> IO (Maybe Response)
 blogsCreateHandler ctxt title body = do
   if title == "" && body == "" then errHtml "invalid input" else do
-    success <- createBlog ctxt (Blog title body)
+    success <- createBlog ctxt (NewBlog title body)
     if success
         then okHtml "created!"
         else errHtml "couldn't create blog"
