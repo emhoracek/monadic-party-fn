@@ -18,11 +18,12 @@ instance FromRow Blog where
   fromRow = Blog <$> field <*> field <*> field
 
 data NewBlog = NewBlog { newTitle :: Text  -- second blog type that is put into the db, not read from it (no created_at field in form)
+                       , newDescription :: Text
                        , newBody  :: Text } deriving (Eq, Show)
 
 instance ToRow NewBlog where
-  toRow (NewBlog title body) =
-    [toField title, toField body]
+  toRow (NewBlog title description body) =
+    [toField title, toField description, toField body]
 
 getBlog :: Ctxt -> Int -> IO (Maybe Blog) -- called by blogViewHandler in Controller
 getBlog ctxt idNum =
@@ -64,5 +65,5 @@ createBlog ctxt blog = (==) 1 <$>
   withResource (db ctxt) (\conn ->
     PG.execute
      conn
-     "INSERT INTO blogs (title, body) VALUES (?, ?)"
+     "INSERT INTO blogs (title, description, body) VALUES (?, ?, ?)"
      blog)

@@ -18,6 +18,7 @@ blogsRoutes ctxt =
              , (method GET // path "create" ==> blogsFormHandler)
              , (method POST // path "create"
                             // param "title"
+                            // param "description"
                             // param "body" !=> blogsCreateHandler)] -- why !=> ?
 
 blogsHandler :: Ctxt -> IO (Maybe Response)
@@ -28,10 +29,10 @@ blogsHandler ctxt = do
 blogsFormHandler :: Ctxt -> IO (Maybe Response)
 blogsFormHandler ctxt = okLucid blogsForm
 
-blogsCreateHandler :: Ctxt -> Text -> Text -> IO (Maybe Response)
-blogsCreateHandler ctxt title body = do
+blogsCreateHandler :: Ctxt -> Text -> Text -> Text -> IO (Maybe Response)
+blogsCreateHandler ctxt title description body = do
   if title == "" && body == "" then errHtml "invalid input" else do
-    success <- createBlog ctxt (NewBlog title body)
+    success <- createBlog ctxt (NewBlog title description body)
     if success
         then okHtml "created!"
         else errHtml "couldn't create blog"
