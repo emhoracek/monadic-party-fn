@@ -13,11 +13,12 @@ import           Blogs.View
 
 blogsRoutes :: Ctxt -> IO (Maybe Response)
 blogsRoutes ctxt =
-  route ctxt [ (end ==> blogsHandler)
-             , (method GET // path "create" ==> blogsFormHandler) 
+  route ctxt [(param "id" ==> blogViewHandler)
+             , (end ==> blogsHandler)
+             , (method GET // path "create" ==> blogsFormHandler)
              , (method POST // path "create"
                             // param "title"
-                            // param "body" !=> blogsCreateHandler)]
+                            // param "body" !=> blogsCreateHandler)] -- why !=> ?
 
 blogsHandler :: Ctxt -> IO (Maybe Response)
 blogsHandler ctxt = do
@@ -34,3 +35,10 @@ blogsCreateHandler ctxt title body = do
     if success
         then okHtml "created!"
         else errHtml "couldn't create blog"
+
+blogViewHandler :: Ctxt -> Int-> IO (Maybe Response)
+blogViewHandler ctxt idNum = do
+  maybeBlog <- getBlog ctxt idNum
+  case maybeBlog of
+    Nothing -> return Nothing
+    Just blog -> okLucid $ blogView blog 
