@@ -22,6 +22,9 @@ blogsForm = do
       "Title"
       input_ [name_ "title"]
     label_ $ do
+      "Description"
+      textarea_ [name_ "description"] ""
+    label_ $ do
       "Body"
       textarea_ [name_ "body"] ""
     input_ [type_ "submit"]
