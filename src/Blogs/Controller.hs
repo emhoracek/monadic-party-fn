@@ -43,3 +43,11 @@ blogViewHandler ctxt idNum = do
   case maybeBlog of
     Nothing -> return Nothing
     Just blog -> okLucid $ blogView blog 
+
+
+paginatedViewHandler :: Ctxt -> Int -> IO (Maybe Response)
+paginatedViewHandler ctxt pgIndex = do -- pgIndex corresponds to the param in the route
+  blogCount <- intToNatural <$> length <$> ( getBlogs ctxt ) -- get number of blogs to pass into paginatedBlog below. use fmap to get it out of IO
+  let pgIndexNat = intToNatural pgIndex -- we need Naturals for pagination
+  page <- paginatedBlog ctxt pgIndexNat blogCount -- the return of paginatedBlog is a page of blog posts
+  okLucid $ blogsView (paginatedItems page) -- paginatedItems takes `a` (page) and returns [a] ([Blog])

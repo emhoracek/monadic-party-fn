@@ -9,6 +9,8 @@ import           Database.PostgreSQL.Simple.ToField
 import           Database.PostgreSQL.Simple.ToRow
 import           Data.Time.Clock (UTCTime)
 import           Context
+import           Data.Pagination
+import           Numeric.Natural
 
 data Blog = Blog { title :: Text
                  , body  :: Text
@@ -33,24 +35,15 @@ getBlog ctxt idNum =
      "SELECT title, body, created_at FROM blogs WHERE id = ?"
      (PG.Only idNum))
 
+{- -Another way to do getBlog-
 getBlog2 ctxt idNum = do
   res <- withResource (db ctxt) (\conn ->
           PG.query_ -- doesn't take params
           conn
-          "SELECT title, body, created_at FROM blogs WHERE id = idNum")
+          "SELECT title, body, created_at FROM blogs WHERE id = ?")
   case res of
     [] -> return Nothing
     (x : xs) -> return (Just x) 
-     
-
-
-{-
-myWithResource :: Connection -> (Connection -> a) -> a
-myWithResource conn yourFunc = 
-  openConnection conn
-  res <- yourFunc conn
-  closeConnection conn
-  return res
 -}
 
 getBlogs :: Ctxt -> IO [Blog]

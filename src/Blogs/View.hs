@@ -4,6 +4,16 @@ import Lucid
 
 import Blogs.Model
 
+-- paginatedView :: [Blog] -> Html ()
+-- paginatedView blogs = do
+--   h1_ "Blogs"
+--   mconcat (map blogView blogs)
+
+-- paginatedView :: paginatedItems -> Html () -- hoping that paginatedItems is a list of 5 blogs
+-- paginatedView blogs = do
+--   h1_ "5 Blogs"
+  -- tried using blogView here
+
 blogView :: Blog -> Html ()
 blogView (Blog title body _) = do
   h2_ (toHtml title)
