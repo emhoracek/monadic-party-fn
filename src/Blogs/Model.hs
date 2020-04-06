@@ -60,3 +60,44 @@ createBlog ctxt blog = (==) 1 <$>
      conn
      "INSERT INTO blogs (title, description, body) VALUES (?, ?, ?)"
      blog)
+
+getBlogCount :: Ctxt -> IO Int
+getBlogCount ctxt = do
+  bCount <- withResource (db ctxt) (\conn ->
+    PG.query_
+     conn
+     "SELECT COUNT(*) FROM blogs")
+  case bCount of
+    [PG.Only n] -> return n
+    whatever -> error $ "Blog count returned: " ++ show whatever
+
+-- blogPagination :: (Maybe Pagination)
+-- blogPagination = mkPagination 5 1
+
+postsPerPage = 5
+
+paginatedBlog :: Ctxt -> Natural -> Natural -> IO (Paginated Blog)
+paginatedBlog ctxt pgIndex blogCount = 
+  case mkPagination postsPerPage pgIndex of
+    Nothing -> error "Something went wrong :("
+    Just blogPost -> paginate blogPost blogCount (blogCallback ctxt) -- partial application/ctxt from callback
+
+blogCallback :: Ctxt -> Int -> Int -> IO [Blog]
+blogCallback ctxt offset limit =
+  withResource (db ctxt) (\conn ->
+    PG.query
+     conn
+     "SELECT title, body, created_at FROM blogs \
+     \ORDER BY title DESC \
+     \LIMIT ? OFFSET ?"
+     (limit, offset)) -- tuples can be entered into the database/are of the ToRow typeclass
+     
+
+{- this is what withResource does!
+myWithResource :: Connection -> (Connection -> a) -> a
+myWithResource conn yourFunc = 
+  openConnection conn
+  res <- yourFunc conn
+  closeConnection conn
+  return res
+-}
