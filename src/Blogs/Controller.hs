@@ -10,16 +10,20 @@ import           Web.Fn
 import           Context
 import           Blogs.Model
 import           Blogs.View
+import           Numeric.Natural
+import           GHC.Natural
+import           Data.Pagination
 
 blogsRoutes :: Ctxt -> IO (Maybe Response)
 blogsRoutes ctxt =
   route ctxt [(param "id" ==> blogViewHandler)
+             , (param "page" ==> paginatedViewHandler)
              , (end ==> blogsHandler)
              , (method GET // path "create" ==> blogsFormHandler)
              , (method POST // path "create"
                             // param "title"
                             // param "description"
-                            // param "body" !=> blogsCreateHandler)] -- why !=> ?
+                            // param "body" !=> blogsCreateHandler)]
 
 blogsHandler :: Ctxt -> IO (Maybe Response)
 blogsHandler ctxt = do
@@ -29,7 +33,7 @@ blogsHandler ctxt = do
 blogsFormHandler :: Ctxt -> IO (Maybe Response)
 blogsFormHandler ctxt = okLucid blogsForm
 
-blogsCreateHandler :: Ctxt -> Text -> Text -> Text -> IO (Maybe Response)
+blogsCreateHandler :: Ctxt -> Text -> Text -> Text -> IO (Maybe Response) -- Texts refer to the three params in the route
 blogsCreateHandler ctxt title description body = do
   if title == "" && body == "" then errHtml "invalid input" else do
     success <- createBlog ctxt (NewBlog title description body)
@@ -43,7 +47,6 @@ blogViewHandler ctxt idNum = do
   case maybeBlog of
     Nothing -> return Nothing
     Just blog -> okLucid $ blogView blog 
-
 
 paginatedViewHandler :: Ctxt -> Int -> IO (Maybe Response)
 paginatedViewHandler ctxt pgIndex = do -- pgIndex corresponds to the param in the route
