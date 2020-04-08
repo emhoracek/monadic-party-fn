@@ -74,7 +74,7 @@ getBlogCount ctxt = do
 -- blogPagination :: (Maybe Pagination)
 -- blogPagination = mkPagination 5 1
 
-postsPerPage = 5
+postsPerPage = 3
 
 paginatedBlog :: Ctxt -> Natural -> Natural -> IO (Paginated Blog)
 paginatedBlog ctxt pgIndex blogCount = 

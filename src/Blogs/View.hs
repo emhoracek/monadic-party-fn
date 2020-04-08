@@ -22,7 +22,7 @@ blogView (Blog title body _) = do
 blogsView :: [Blog] -> Html ()
 blogsView blogs = do
   h1_ "Blogs"
-  mconcat (map blogView blogs)
+  mconcat (reverse (map blogView blogs))
 
 blogsForm :: Html ()
 blogsForm = do
