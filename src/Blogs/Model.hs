@@ -15,12 +15,13 @@ import           Numeric.Natural
 import           GHC.Natural
 import           Web.Fn
 
-data Blog = Blog { title :: Text
+data Blog = Blog { id :: Int 
+                 , title :: Text
                  , body  :: Text
                  , createdAt :: UTCTime } deriving (Eq, Show)
 
 instance FromRow Blog where
-  fromRow = Blog <$> field <*> field <*> field
+  fromRow = Blog <$> field <*> field <*> field <*> field
 
 data NewBlog = NewBlog { newTitle :: Text  -- second blog type that is put into the db, not read from it (no created_at field in form)
                        , newDescription :: Text
@@ -42,7 +43,7 @@ getBlog ctxt idNum =
   listToMaybe <$> withResource (db ctxt) (\conn ->
     PG.query --no underscore if passing in a param
      conn
-     "SELECT title, body, created_at FROM blogs WHERE id = ?"
+     "SELECT id, title, body, created_at FROM blogs WHERE id = ?"
      (PG.Only idNum))
 
 {- -Another way to do getBlog-
@@ -61,7 +62,17 @@ getBlogs ctxt =
   withResource (db ctxt) (\conn ->
     PG.query_
      conn
-     "SELECT title, body, created_at FROM blogs")
+     "SELECT id, title, body, created_at FROM blogs")
+
+blogCallback :: Ctxt -> Int -> Int -> IO [Blog]
+blogCallback ctxt offset limit =
+  withResource (db ctxt) (\conn ->
+    PG.query
+     conn
+     "SELECT id, title, body, created_at FROM blogs \
+     \ORDER BY title DESC \
+     \LIMIT ? OFFSET ?"
+     (limit, offset)) -- tuples can be entered into the database/are of the ToRow typeclass
 
 createBlog :: Ctxt -> NewBlog -> IO Bool
 createBlog ctxt blog = (==) 1 <$>
@@ -90,17 +101,6 @@ paginatedBlog ctxt pgIndex = do
     Nothing -> error "Something went wrong :("
     Just blogPost -> paginate blogPost blogCount (blogCallback ctxt) -- partial application/ctxt from callback
 
-
-blogCallback :: Ctxt -> Int -> Int -> IO [Blog]
-blogCallback ctxt offset limit =
-  withResource (db ctxt) (\conn ->
-    PG.query
-     conn
-     "SELECT title, body, created_at FROM blogs \
-     \ORDER BY title DESC \
-     \LIMIT ? OFFSET ?"
-     (limit, offset)) -- tuples can be entered into the database/are of the ToRow typeclass
-     
 
 {- this is what withResource does!
 myWithResource :: Connection -> (Connection -> a) -> a

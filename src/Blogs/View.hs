@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Blogs.View where
 
 import Lucid
@@ -5,6 +6,9 @@ import Lucid
 import Blogs.Model
 import GHC.Natural
 import Numeric.Natural
+import           Data.Text                          (Text)
+import qualified Data.Text                          as T
+import Data.Monoid
 
 -- paginatedView :: [Blog] -> Html ()
 -- paginatedView blogs = do
@@ -17,8 +21,8 @@ import Numeric.Natural
   -- tried using blogView here
 
 blogView :: Blog -> Html ()
-blogView (Blog title description body) = do
-  h2_ $ a_ [href_ ("http://localhost:8000//blogs?id=1")](toHtml title)
+blogView (Blog id title description body) = do
+  h2_ $ a_ [href_ ("http://localhost:8000//blogs?id=" <> (T.pack (show id)))](toHtml title)
   p_ (toHtml description)
 
 blogsView :: [Blog] -> Natural -> Html () --[Blog] comes from paginatedItems in paginatedViewHandler. Natural is totalPages
