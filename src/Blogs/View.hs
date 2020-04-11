@@ -3,6 +3,8 @@ module Blogs.View where
 import Lucid
 
 import Blogs.Model
+import GHC.Natural
+import Numeric.Natural
 
 -- paginatedView :: [Blog] -> Html ()
 -- paginatedView blogs = do
@@ -15,14 +17,22 @@ import Blogs.Model
   -- tried using blogView here
 
 blogView :: Blog -> Html ()
-blogView (Blog title body _) = do
-  h2_ (toHtml title)
-  p_ (toHtml body)
+blogView (Blog title description body) = do
+  h2_ $ a_ [href_ ("http://localhost:8000//blogs?id=1")](toHtml title)
+  p_ (toHtml description)
 
-blogsView :: [Blog] -> Html ()
-blogsView blogs = do
+blogsView :: [Blog] -> Natural -> Html () --[Blog] comes from paginatedItems in paginatedViewHandler. Natural is totalPages
+blogsView blogs pageTotal = do
+  p_ $ toHtml (show pageTotal)
   h1_ "Blogs"
   mconcat (reverse (map blogView blogs))
+  a_ [href_ ("http://localhost:8000//blogs?page=1")] "1 "
+  a_ [href_ ("http://localhost:8000//blogs?page=2")] "2 "
+  a_ [href_ ("http://localhost:8000//blogs?page=3")] "3 "
+  a_ [href_ ("http://localhost:8000//blogs?page=4")] "4 "
+  a_ [href_ ("http://localhost:8000//blogs?page=5")] "5 "
+  br_ mempty
+  a_ [href_ ("http://localhost:8000//blogs/create")] "start writing"
 
 blogsForm :: Html ()
 blogsForm = do

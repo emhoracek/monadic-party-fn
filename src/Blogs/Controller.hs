@@ -27,8 +27,9 @@ blogsRoutes ctxt =
 
 blogsHandler :: Ctxt -> IO (Maybe Response)
 blogsHandler ctxt = do
-  blogs <- getBlogs ctxt
-  okLucid $ blogsView blogs
+  paginatedViewHandler ctxt (PageIndex 1)
+  -- blogs <- getBlogs ctxt
+  -- okLucid $ blogsView blogs
 
 blogsFormHandler :: Ctxt -> IO (Maybe Response)
 blogsFormHandler ctxt = okLucid blogsForm
@@ -36,9 +37,10 @@ blogsFormHandler ctxt = okLucid blogsForm
 blogsCreateHandler :: Ctxt -> Text -> Text -> Text -> IO (Maybe Response) -- Texts refer to the three params in the route
 blogsCreateHandler ctxt title description body = do
   if title == "" && body == "" then errHtml "invalid input" else do
-    success <- createBlog ctxt (NewBlog title description body)
+    success <- createBlog ctxt (NewBlog title description body) --returns a Bool
     if success
         then okHtml "created!"
+        -- then okLucid $ blogView _  --how do I get the current blog being created?
         else errHtml "couldn't create blog"
 
 blogViewHandler :: Ctxt -> Int-> IO (Maybe Response)
@@ -48,9 +50,10 @@ blogViewHandler ctxt idNum = do
     Nothing -> return Nothing
     Just blog -> okLucid $ blogView blog 
 
-paginatedViewHandler :: Ctxt -> Int -> IO (Maybe Response)
+paginatedViewHandler :: Ctxt -> PageIndex -> IO (Maybe Response)
 paginatedViewHandler ctxt pgIndex = do -- pgIndex corresponds to the param in the route
-  blogCount <- intToNatural <$> length <$> ( getBlogs ctxt ) -- get number of blogs to pass into paginatedBlog below. use fmap to get it out of IO
-  let pgIndexNat = intToNatural pgIndex -- we need Naturals for pagination
-  page <- paginatedBlog ctxt pgIndexNat blogCount -- the return of paginatedBlog is a page of blog posts
-  okLucid $ blogsView (paginatedItems page) -- paginatedItems takes `a` (page) and returns [a] ([Blog])
+  page <- paginatedBlog ctxt pgIndex -- the return of paginatedBlog is a page of blog posts
+  let totalPages = paginatedPagesTotal page
+  okLucid $ blogsView (paginatedItems page) totalPages -- paginatedItems takes `a` (page) and returns [a] ([Blog])
+
+ -- paginatedPagesTotal :: Paginated a -> Natural

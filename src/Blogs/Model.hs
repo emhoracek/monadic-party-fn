@@ -3,6 +3,7 @@ module Blogs.Model where
 import           Data.Maybe                         (listToMaybe)
 import           Data.Pool                          (withResource)
 import           Data.Text                          (Text)
+import qualified Data.Text                          as T
 import qualified Database.PostgreSQL.Simple         as PG
 import           Database.PostgreSQL.Simple.FromRow
 import           Database.PostgreSQL.Simple.ToField
@@ -11,6 +12,8 @@ import           Data.Time.Clock (UTCTime)
 import           Context
 import           Data.Pagination
 import           Numeric.Natural
+import           GHC.Natural
+import           Web.Fn
 
 data Blog = Blog { title :: Text
                  , body  :: Text
@@ -26,6 +29,13 @@ data NewBlog = NewBlog { newTitle :: Text  -- second blog type that is put into 
 instance ToRow NewBlog where
   toRow (NewBlog title description body) =
     [toField title, toField description, toField body]
+
+newtype PageIndex = PageIndex { unPageIndex :: Natural } deriving (Eq, Show)
+
+instance FromParam PageIndex where -- fromParam :: [Text] -> Either ParamError a
+  fromParam [x] = Right (PageIndex (read (T.unpack x)))
+  fromParam [] = Left ParamMissing
+  fromParam _ = Left ParamTooMany
 
 getBlog :: Ctxt -> Int -> IO (Maybe Blog) -- called by blogViewHandler in Controller
 getBlog ctxt idNum =
@@ -71,16 +81,15 @@ getBlogCount ctxt = do
     [PG.Only n] -> return n
     whatever -> error $ "Blog count returned: " ++ show whatever
 
--- blogPagination :: (Maybe Pagination)
--- blogPagination = mkPagination 5 1
-
 postsPerPage = 3
 
-paginatedBlog :: Ctxt -> Natural -> Natural -> IO (Paginated Blog)
-paginatedBlog ctxt pgIndex blogCount = 
-  case mkPagination postsPerPage pgIndex of
+paginatedBlog :: Ctxt -> PageIndex -> IO (Paginated Blog)
+paginatedBlog ctxt pgIndex = do
+  blogCount <- intToNatural <$> length <$> ( getBlogs ctxt ) -- get total number of blogs posts. use fmap to get it out of IO
+  case mkPagination postsPerPage (unPageIndex pgIndex) of
     Nothing -> error "Something went wrong :("
     Just blogPost -> paginate blogPost blogCount (blogCallback ctxt) -- partial application/ctxt from callback
+
 
 blogCallback :: Ctxt -> Int -> Int -> IO [Blog]
 blogCallback ctxt offset limit =
