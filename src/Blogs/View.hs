@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
 module Blogs.View where
 
 import Lucid
@@ -29,14 +29,25 @@ blogsView :: [Blog] -> Natural -> Html () --[Blog] comes from paginatedItems in 
 blogsView blogs pageTotal = do
   p_ $ toHtml (show pageTotal)
   h1_ "Blogs"
-  mconcat (reverse (map blogView blogs))
-  a_ [href_ ("http://localhost:8000//blogs?page=1")] "1 "
-  a_ [href_ ("http://localhost:8000//blogs?page=2")] "2 "
-  a_ [href_ ("http://localhost:8000//blogs?page=3")] "3 "
-  a_ [href_ ("http://localhost:8000//blogs?page=4")] "4 "
-  a_ [href_ ("http://localhost:8000//blogs?page=5")] "5 "
+  mconcat (reverse (map blogView blogs)) 
+
+  -- generate paginated links from pageTotal
+  mapM_ (\pageNumber -> 
+            let pageString :: Text
+                pageString = (T.pack (show pageNumber <> " "))
+
+                paginatedUrl :: Text
+                paginatedUrl = ("http://localhost:8000//blogs?page=" 
+                    <> (T.pack $ show pageNumber))
+
+                res :: Html ()
+                res = a_ [href_ paginatedUrl] (toHtml pageString)
+                in res) pageList
+
   br_ mempty
   a_ [href_ ("http://localhost:8000//blogs/create")] "start writing"
+    where pageList :: [Natural]
+          pageList = [1..pageTotal]
 
 blogsForm :: Html ()
 blogsForm = do
