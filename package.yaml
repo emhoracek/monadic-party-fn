@@ -28,6 +28,7 @@ dependencies:
 - lucid
 - digestive-functors
 - aeson
+- pagination
 
 library:
   source-dirs: src

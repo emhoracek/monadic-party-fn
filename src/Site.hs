@@ -5,7 +5,7 @@ import qualified Database.PostgreSQL.Simple as PG
 import           Network.Wai                (Application, Response)
 import           Web.Fn
 import           Data.Text                  (Text)
-
+import           Lucid
 import           Context
 import           Blogs.Controller
 
@@ -52,4 +52,12 @@ addWordsH ctxt word1 word2 =
   okText (word1 <> " plus " <> word2 <> " is " <> word1 <> word2 <> ".")
 
 indexHandler :: Ctxt -> IO (Maybe Response)
-indexHandler ctxt = okText "hello world"
+indexHandler ctxt = okLucid myHtml
+
+myHtml :: Html ()
+myHtml = do
+  html_ $ do
+    head_ $ do
+      title_  "Hello!!"
+    body_ $ do
+      h1_ "Hi!!"
